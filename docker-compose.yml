@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+  db:
+    container_name: databasemafia
+    image: sameersbn/postgresql:10-2
+    environment:
+      DB_NAME: gino
+      PG_PASSWORD: admin
+    ports:
+      - 5432:5432
+    networks:
+      - botnet
+    env_file:
+      - ".env"
+# Uncomment volumes if you need locate db on local host
+#    volumes:
+#      - ./pgdata:/var/lib/postgresql/data
+
+  adminer:
+    container_name: adminermafia
+    image: adminer
+    ports:
+      - 8080:8080
+
+  tgbot:
+    container_name: mafiabot
+    build:
+      context: .
+    command: python app.py
+    networks:
+      - botnet
+    env_file:
+      - ".env"
+    # bot start after load db
+    depends_on:
+      - db
+
+# указываются используемые сети
+networks:
+  botnet:
+    # указывается драйвер сети
+    driver: bridge
